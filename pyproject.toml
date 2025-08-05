@@ -1,0 +1,19 @@
+[project]
+name = "realty_redux"
+version = "0.0.1"
+description = "Scrape real estate websites and return descriptive statistics"
+authors = [
+    {name = "Reggie Gilliard", email = "regg19970@gmail.com" },
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "flask", "selenium", "bs4", "googlemaps", "pandas",
+    "webdriver_manager", "lxml"
+]
+
+[build-system]
+requires = ["flit_core >= 3.4"]
+build-backend = "flit_core.buildapi"
