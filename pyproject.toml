@@ -11,7 +11,7 @@ classifiers = [
 ]
 dependencies = [
     "flask", "selenium", "bs4", "googlemaps", "pandas",
-    "webdriver_manager", "lxml"
+    "webdriver_manager", "lxml", "fake-useragent"
 ]
 
 [build-system]
