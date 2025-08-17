@@ -1,0 +1,11 @@
+{
+    "files.trimTrailingWhitespace": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": false,
+        "editor.codeActionsOnSave": {
+            // "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        }
+    }
+}

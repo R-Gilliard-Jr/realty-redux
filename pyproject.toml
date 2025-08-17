@@ -11,9 +11,12 @@ classifiers = [
 ]
 dependencies = [
     "flask", "selenium", "bs4", "googlemaps", "pandas",
-    "webdriver_manager", "lxml", "fake-useragent"
+    "webdriver_manager", "lxml", "fake-useragent", "pyxirr"
 ]
 
 [build-system]
 requires = ["flit_core >= 3.4"]
 build-backend = "flit_core.buildapi"
+
+[project.scripts]
+realty = "realty_redux.__main__:main"
