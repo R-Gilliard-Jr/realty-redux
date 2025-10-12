@@ -15,76 +15,43 @@
 <body>
     <h1>Realty Redux Report</h1>
     <form id="reportForm">
-        <label>Construction Year: <input name="construction_year" type="number" required></label>
-        <label>Lot Size (sq ft): <input name="lot_size_sq_ft" type="number" required></label>
-        <label>Total Rental Size (sq ft): <input name="total_rental_size_sq_ft" type="number" required></label>
-        <label>Number of Units: <input name="number_of_units" type="number" required></label>
-        <label>Zoning Class: <input name="zoning_class" type="text" required></label>
-        <label>Unit Mix: <input name="unit_mix" type="text" required></label>
-        <label>Parking Spots: <input name="parking_spots" type="number" required></label>
-        <label>Property Taxes: <input name="property_taxes" type="number" required></label>
-        <label>Acquisition Date: <input name="acquisition_date" type="date" required></label>
-        <label>Asking Price: <input name="asking_price" type="number" required></label>
-        <label>Closing Cost %: <input name="closing_cost_pct" type="number" step="0.01" required></label>
-        <label>Sale Date: <input name="sale_date" type="date" required></label>
-        <label>Sale Price: <input name="sale_price" type="number" required></label>
-        <label>Loan to Value: <input name="loan_to_value" type="number" step="0.01" required></label>
-        <label>Loan Type: <input name="loan_type" type="text" required></label>
-        <label>Loan Term (years): <input name="loan_term" type="number" required></label>
-        <label>Loan Amortization Years: <input name="loan_amortization_years" type="number" required></label>
-        <label>Interest Rate: <input name="interest_rate" type="number" step="0.0001" required></label>
-        <label>Minimum Rent Coverage: <input name="minimum_rent_coverage" type="number" step="0.01" required></label>
-        <label>Points Paid: <input name="points_paid" type="number" step="0.01" required></label>
-        <label>Interest Only: <select name="interest_only"><option value="Yes">Yes</option><option value="No">No</option></select></label>
-        <label>Interest Only Years: <input name="interest_only_years" type="number" required></label>
-        <label>Loan Costs: <input name="loan_costs" type="number" required></label>
-        <label>Purchase Price: <input name="purchase_price" type="number" required></label>
-        <label>Renovation Cost: <input name="renovation_cost" type="number" required></label>
-        <label>Contingency Funds: <input name="contingency_funds" type="number" required></label>
-        <label>Property Management (%): <input name="property_management" type="number" step="0.01" required></label>
-        <label>Home Insurance (%): <input name="home_insurance" type="number" step="0.01" required></label>
-        <label>Ongoing Maintenance (%): <input name="ongoing_maintenance" type="number" step="0.01" required></label>
-        <label>Operating Expenses (%): <input name="operating_expenses" type="number" step="0.01" required></label>
-        <label>Unpaid Utilities (%): <input name="unpaid_utilities" type="number" step="0.01" required></label>
-        <label>Broker Fee on New Rental: <input name="broker_fee_on_new_rental" type="number" required></label>
-        <label>Loan Principal: <input name="loan_principal" type="number" required></label>
-        <label>Rental Units (JSON array): <textarea name="rental_units" required>[{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05}]</textarea></label>
+    <label>Construction Year: <input name="construction_year" type="number" required value="1928"></label>
+    <label>Lot Size (sq ft): <input name="lot_size_sq_ft" type="number" required value="2800"></label>
+    <label>Total Rental Size (sq ft): <input name="total_rental_size_sq_ft" type="number" required value="5712"></label>
+    <label>Number of Units: <input name="number_of_units" type="number" required value="6"></label>
+    <label>Zoning Class: <input name="zoning_class" type="text" required value="C2"></label>
+    <label>Unit Mix: <input name="unit_mix" type="text" required value="some text"></label>
+    <label>Parking Spots: <input name="parking_spots" type="number" required value="0"></label>
+    <label>Property Taxes: <input name="property_taxes" type="number" required value="18353"></label>
+    <label>Acquisition Date: <input name="acquisition_date" type="date" required value="2025-07-31"></label>
+    <label>Asking Price: <input name="asking_price" type="number" required value="1299999"></label>
+    <label>Closing Cost %: <input name="closing_cost_pct" type="number" step="0.01" required value="0.03"></label>
+    <label>Sale Date: <input name="sale_date" type="date" required value="2026-09-30"></label>
+    <label>Sale Price: <input name="sale_price" type="number" required value="1364999"></label>
+    <label>Loan to Value: <input name="loan_to_value" type="number" step="0.01" required value="0.8"></label>
+    <label>Loan Type: <input name="loan_type" type="text" required value="Fixed"></label>
+    <label>Loan Term (years): <input name="loan_term" type="number" required value="40"></label>
+    <label>Loan Amortization Years: <input name="loan_amortization_years" type="number" required value="40"></label>
+    <label>Interest Rate: <input name="interest_rate" type="number" step="0.0001" required value="0.0735"></label>
+    <label>Minimum Rent Coverage: <input name="minimum_rent_coverage" type="number" step="0.01" required value="1"></label>
+    <label>Points Paid: <input name="points_paid" type="number" step="0.01" required value="1.875"></label>
+    <label>Interest Only: <select name="interest_only"><option value="Yes" selected>Yes</option><option value="No">No</option></select></label>
+    <label>Interest Only Years: <input name="interest_only_years" type="number" required value="10"></label>
+    <label>Loan Costs: <input name="loan_costs" type="number" required value="3400"></label>
+    <label>Purchase Price: <input name="purchase_price" type="number" required value="1299999"></label>
+    <label>Renovation Cost: <input name="renovation_cost" type="number" required value="50000"></label>
+    <label>Contingency Funds: <input name="contingency_funds" type="number" required value="10000"></label>
+    <label>Property Management (%): <input name="property_management" type="number" step="0.01" required value="0.08"></label>
+    <label>Home Insurance (%): <input name="home_insurance" type="number" step="0.01" required value="0.05"></label>
+    <label>Ongoing Maintenance (%): <input name="ongoing_maintenance" type="number" step="0.01" required value="0.1"></label>
+    <label>Operating Expenses (%): <input name="operating_expenses" type="number" step="0.01" required value="0.2"></label>
+    <label>Unpaid Utilities (%): <input name="unpaid_utilities" type="number" step="0.01" required value="0.0347"></label>
+    <label>Broker Fee on New Rental: <input name="broker_fee_on_new_rental" type="number" required value="1"></label>
+    <label>Loan Principal: <input name="loan_principal" type="number" required value="1039999"></label>
+    <label>Rental Units (JSON array): <textarea name="rental_units" required>[{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05},{"initial_rent":2400,"rent_growth":0.05}]</textarea></label>
         <button type="submit">Generate Report</button>
     </form>
     <div id="results"></div>
-    <script>
-        document.getElementById('reportForm').onsubmit = async function(e) {
-            e.preventDefault();
-            const form = e.target;
-            const data = {};
-            for (let el of form.elements) {
-                if (!el.name) continue;
-                if (el.name === 'rental_units') {
-                    try {
-                        data[el.name] = JSON.parse(el.value);
-                    } catch {
-                        alert('Rental Units must be valid JSON array');
-                        return;
-                    }
-                } else if (el.type === 'number' || el.type === 'range') {
-                    data[el.name] = el.value === '' ? null : Number(el.value);
-                } else {
-                    data[el.name] = el.value;
-                }
-            }
-            fetch('/report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(r => r.json())
-            .then(res => {
-                document.getElementById('results').innerHTML = '<pre>' + JSON.stringify(res, null, 2) + '</pre>';
-            })
-            .catch(err => {
-                document.getElementById('results').innerHTML = '<b>Error:</b> ' + err;
-            });
-        };
-    </script>
+    <script type="module" src="{{ url_for('static', filename='report/index.js') }}"></script>
 </body>
 </html>
