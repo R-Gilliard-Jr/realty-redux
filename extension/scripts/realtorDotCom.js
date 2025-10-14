@@ -42,6 +42,7 @@ const observer = new MutationObserver((mutations) => {
 observer.observe(
     document.querySelector("section[data-testid='property-list']"),
     {
+        subtree: true,
         childList: true
     }
 )
