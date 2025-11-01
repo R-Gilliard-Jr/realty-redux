@@ -9,5 +9,8 @@
             "js": ["scripts/realtorDotCom.js"],
             "matches": ["https://www.realtor.com/realestateandhomes-search/*"]
         }
-    ]
+    ],
+    "action": {
+        "default_popup": "download.html"
+    }
 }
