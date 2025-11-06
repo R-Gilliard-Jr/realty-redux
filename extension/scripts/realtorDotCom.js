@@ -47,7 +47,7 @@ observer.observe(
 
 chrome.runtime.onMessage.addListener((msg) => {
     if (msg.action === "download") {
-        const dataToSave = sessionStorage.getItem("cardData");
+        const dataToSave = JSON.parse(sessionStorage.getItem("cardData"));
         const jsonString = JSON.stringify(dataToSave, null, 2);
 
         const blob = new Blob([jsonString], { type: "application/json" });
