@@ -3,11 +3,19 @@
     "name": "Real Estate Parser",
     "version": "0.1",
     "description": "Parse real estate data from popular websites into a structured dataset.",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
     "content_scripts": [
         {
-            "js": ["scripts/realtorDotCom.js"],
-            "matches": ["https://www.realtor.com/realestateandhomes-search/*"]
+            "js": [
+                "scripts/realtorDotCom.js"
+            ],
+            "matches": [
+                "https://www.realtor.com/realestateandhomes-search/*",
+                "https://www.realtor.com/apartments/*"
+            ]
         }
     ],
     "action": {
