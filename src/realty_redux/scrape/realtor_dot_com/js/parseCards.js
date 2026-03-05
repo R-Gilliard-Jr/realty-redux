@@ -1,7 +1,6 @@
-parseCards = """
-    function parseCards() {
-    const cardSelector = "div[data-testid='rdc-property-card']"
-    const propertyCharacteristics = ["property-meta-beds", "property-meta-baths", "property-meta-lot-size", "card-price", "card-address-1", "card-address-2"]
+function parseCards() {
+    const cardSelector = "div[data-testid='rdc-property-card']";
+    const propertyCharacteristics = ["property-meta-beds", "property-meta-baths", "property-meta-lot-size", "card-price", "card-address-1", "card-address-2"];
     sessionStorage.setItem("processedCards", JSON.stringify([]));
     sessionStorage.setItem("cardData", JSON.stringify([]));
     const card_list = document.querySelectorAll(cardSelector);
@@ -10,7 +9,8 @@ parseCards = """
     card_array.forEach((card) => {
         const processedCards = JSON.parse(sessionStorage.getItem("processedCards"));
         const cardDataList = JSON.parse(sessionStorage.getItem("cardData"));
-        const address = card.querySelector("div[data-testid='card-address']").textContent
+        const address = card.querySelector("div[data-testid='card-address']").textContent;
+        const url = card.querySelector(".card-image-wrapper").querySelector("a").getAttribute("href");
         if (!(processedCards.includes(address))) {
             const cardContent = card.querySelector("div[data-testid='card-content']");
             const cardData = {};
@@ -24,6 +24,7 @@ parseCards = """
                 }
                 cardData[characteristic] = value;
             }
+            cardData["url"] = url;
             console.log(cardData);
             processedCards.push(address);
             cardDataList.push(cardData);
@@ -33,5 +34,3 @@ parseCards = """
     })
     return sessionStorage.getItem("cardData");
 }
-return parseCards();
-"""
