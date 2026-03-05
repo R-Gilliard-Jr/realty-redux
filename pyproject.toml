@@ -4,6 +4,7 @@ version = "0.0.1"
 description = "Scrape real estate websites and return descriptive statistics"
 authors = [
     {name = "Reggie Gilliard", email = "regg19970@gmail.com" },
+    {name = "Zen Li"}
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -12,7 +13,7 @@ classifiers = [
 dependencies = [
     "flask", "selenium", "bs4", "googlemaps", "pandas",
     "webdriver_manager", "lxml", "fake-useragent", "pyxirr",
-    "SQLAlchemy", "sqlalchemy-utils"
+    "SQLAlchemy", "sqlalchemy-utils", "scikit-learn"
 ]
 
 [project.optional-dependencies]
