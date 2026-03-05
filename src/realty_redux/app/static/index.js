@@ -1,9 +1,10 @@
 var map = L.map("map").setView([39.8, -98.5], 4);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "OSM", maxZoom: 19 }).addTo(map);
 
-var allListings = [], markers = [], searchResults = [], assumptions = {};
+var allListings = [], markers = [], searchResults = [], assumptions = {}, searchTerms = {};
 
 fetch("/assumptions").then(function (r) { return r.json() }).then(function (a) { assumptions = a; renderSettings() });
+renderAdvanced();
 
 function cfColor(cf) { if (cf >= 500) return "rgba(0,200,80,.75)"; if (cf >= 200) return "rgba(80,210,80,.65)"; if (cf >= 0) return "rgba(255,210,50,.6)"; if (cf >= -200) return "rgba(255,130,40,.65)"; return "rgba(220,40,40,.7)" }
 function cfBord(cf) { if (cf >= 500) return "#00c850"; if (cf >= 200) return "#40c840"; if (cf >= 0) return "#d4a020"; if (cf >= -200) return "#e06020"; return "#c02020" }
@@ -179,6 +180,71 @@ function exportCSV() {
     var rows = allListings.map(function (l) { var c = l.cf || {}; return [l.address, l.price, l.beds || "", l.baths || "", l.sqft || "", (c.rent || 0).toFixed(0), (c.mcf || 0).toFixed(0), (c.acf || 0).toFixed(0), (c.coc || 0).toFixed(2), (c.cap || 0).toFixed(2), (c.dscr || 0).toFixed(2), l.lat || "", l.lng || "", l.url || ""].map(function (v) { return '"' + v + '"' }).join(",") });
     var csv = [h.join(",")].concat(rows).join("\n");
     var a = document.createElement("a"); a.href = "data:text/csv," + encodeURIComponent(csv); a.download = "cashflow_export.csv"; a.click();
+}
+
+function renderAdvanced() {
+    var searchOptions = {
+        "limit": ["Limit", "int"],
+        "offset": ["Page", "int"],
+        "state_code": ["State Code", "string"],
+        "city": ["City", "string"],
+        "street_name": ["Street Name", "string"],
+        "address": ["Address", "string"],
+        "postal_code": ["Postal Code", "string"],
+        "agent_source_id": ["Agent Source ID", "string"],
+        "selling_agent_name": ["Selling Agent Name", "string"],
+        "source_listing_id": ["Source Listing ID", "string"],
+        "property_id": ["Property ID", "string"],
+        "fulfillment_id": ["Fullfillment ID", "string"],
+        // "search_location": ["Search Location", "object"],
+        // "radius": ["Radius", "int"],
+        // "location": ["Location", "string"],
+        // "status": ["Status", "array"],
+        // "type": ["Type", "array"],
+        // "keywords": ["Keywords", "array"],
+        "boundary": ["Boundary", "object"],
+        "baths": ["Baths", "object"],
+        "beds": ["Beds", "object"],
+        "open_house": ["Open House", "object"],
+        "year_built": ["Year Built", "object"],
+        "sold_price": ["Sold Price", "object"],
+        "sold_date": ["Sold Date", "object"],
+        "list_price": ["List Price", "object"],
+        "lot_sqft": ["Lot SQ. FT.", "object"],
+        "sqft": ["SQ. FT.", "object"],
+        "hoa_fee": ["HOA Fee", "object"],
+        "no_hoa_fee": ["No HOA Fee", "boolean"],
+        "pending": ["Pending", "boolean"],
+        "contingent": ["Contingent", "boolean"],
+        "foreclosure": ["Foreclosure", "boolean"],
+        "has_tour": ["Has Tour", "boolean"],
+        "new_construction": ["New Construction", "boolean"],
+        "cats": ["Cats", "boolean"],
+        "dogs": ["Dogs", "boolean"],
+        "matterport": ["Matterport", "boolean"],
+        // "sort": ["Sort", "object"],
+        // "direction": ["Direction", "string"],
+        // "field": ["Field", "string"]
+    };
+    var entry = {
+        "int": ["input", "number"],
+        "string": ["input", "text"],
+        "boolean": ["input", "checkbox"],
+        "object": ["input", "text", "placeholder='min,max: 0,1'"],
+        "array": ["input", "text"]
+    }
+    var html = "";
+    for (var opt in searchOptions) {
+        let label = searchOptions[opt][0];
+        let type_ = searchOptions[opt][1];
+        html += '<div class="sfld"><label>' +
+            (label || opt) +
+            '</label><div class="inp">' +
+            `<${entry[type_][0]} type="${entry[type_][1]}" value="" data-key="${opt}" ${entry[type_][2] ? entry[type_][2].split(",") : ""}/>` +
+            '</div>' +
+            '</div>';
+    }
+    document.getElementById("advanced-search-body").innerHTML = html;
 }
 
 renderList();
