@@ -2,6 +2,7 @@ import sqlite3
 from realty_redux.common.sql.BaseConnector import BaseConnector
 from typing import Self
 
+
 class SQLiteConnector(BaseConnector):
     def __init__(self, location: str):
         self.db_location: str
@@ -28,4 +29,3 @@ class SQLiteConnector(BaseConnector):
     def close_connection(self) -> Self:
         self.connection.close()
         return self
-

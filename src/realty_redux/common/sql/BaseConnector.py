@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class BaseConnector(ABC):
     @abstractmethod
     def init_db(self, *args, **kwargs):
@@ -26,4 +27,3 @@ class BaseConnector(ABC):
 
         :param self: Description
         """
-
