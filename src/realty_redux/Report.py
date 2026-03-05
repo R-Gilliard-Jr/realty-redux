@@ -1,7 +1,5 @@
 from typing import Self, TypedDict
 
-from dateutil import relativedelta
-from pyxirr import xirr
 
 
 class RentalUnit(TypedDict):
