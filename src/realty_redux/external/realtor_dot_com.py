@@ -4,6 +4,60 @@ import re
 import requests
 
 class RealtorDotCom:
+    searchOptions = {
+        "limit": ["Limit", "int"],
+        "offset": ["Page", "int"],
+        "state_code": ["State Code", "string"],
+        "city": ["City", "string"],
+        "street_name": ["Street Name", "string"],
+        "address": ["Address", "string"],
+        "postal_code": ["Postal Code", "string"],
+        "agent_source_id": ["Agent Source ID", "string"],
+        "selling_agent_name": ["Selling Agent Name", "string"],
+        "source_listing_id": ["Source Listing ID", "string"],
+        "property_id": ["Property ID", "string"],
+        "fulfillment_id": ["Fullfillment ID", "string"],
+        # "search_location": ["Search Location", "object"],
+        # "radius": ["Radius", "int"],
+        # "location": ["Location", "string"],
+        # "status": ["Status", "array"],
+        # "type": ["Type", "array"],
+        # "keywords": ["Keywords", "array"],
+        "boundary": ["Boundary", "object"],
+        "baths": ["Baths", "object"],
+        "beds": ["Beds", "object"],
+        "open_house": ["Open House", "object"],
+        "year_built": ["Year Built", "object"],
+        "sold_price": ["Sold Price", "object"],
+        "sold_date": ["Sold Date", "object"],
+        "list_price": ["List Price", "object"],
+        "lot_sqft": ["Lot SQ. FT.", "object"],
+        "sqft": ["SQ. FT.", "object"],
+        "hoa_fee": ["HOA Fee", "object"],
+        "no_hoa_fee": ["No HOA Fee", "boolean"],
+        "pending": ["Pending", "boolean"],
+        "contingent": ["Contingent", "boolean"],
+        "foreclosure": ["Foreclosure", "boolean"],
+        "has_tour": ["Has Tour", "boolean"],
+        "new_construction": ["New Construction", "boolean"],
+        "cats": ["Cats", "boolean"],
+        "dogs": ["Dogs", "boolean"],
+        "matterport": ["Matterport", "boolean"],
+        # "sort": ["Sort", "object"],
+        # "direction": ["Direction", "string"],
+        # "field": ["Field", "string"]
+    }
+
+    entry = {
+        "int": ["input", "number"],
+        "string": ["input", "text"],
+        "boolean": ["input", "checkbox"],
+        "object": ["input", "text", "placeholder='min,max: 0,1'"],
+        "array": ["input", "text"]
+    }
+
+    searchReverse = {value[0]: key for key, value in searchOptions.items()}
+
     def __init__(self):
         self.__host: str = os.getenv("RAPIDAPI_HOST")
         self.__key: str = os.getenv("RAPIDAPI_KEY")
@@ -77,12 +131,6 @@ class RealtorDotCom:
             f"  [Realtor] Location: '{loc}' | Max price: {max_price} | Beds: {min_beds} | Zip: {zip_code}"
         )
 
-        headers = {
-            "Content-Type": "application/json",
-            "x-rapidapi-host": self.__host,
-            "x-rapidapi-key": self.__key,
-        }
-
         # Build request body
         body = {
             "limit": 200,
@@ -113,7 +161,16 @@ class RealtorDotCom:
 
         print(f"  [Realtor] API body: {body}")
 
+        return self.search(body, max_price=max_price)
+
+    def search(self, body: dict, **kwargs):
         # Call the API (POST with JSON body)
+        headers = {
+            "Content-Type": "application/json",
+            "x-rapidapi-host": self.__host,
+            "x-rapidapi-key": self.__key,
+        }
+
         r = requests.post(
             f"https://{self.__host}/properties/v3/list",
             headers=headers,
@@ -132,7 +189,7 @@ class RealtorDotCom:
             raise ValueError(f"API error: HTTP {r.status_code}")
 
         data = r.json()
-
+        print(data)
         # Handle both v2 and v3 response formats
         properties = data.get("data", {}).get("home_search", {}).get("results", [])
         if not properties:
@@ -155,6 +212,7 @@ class RealtorDotCom:
                 continue
 
         # Client-side price filter (API may not enforce price_max precisely)
+        max_price = kwargs.get("max_price")
         if max_price:
             listings = [l for l in listings if l["price"] <= max_price]
 

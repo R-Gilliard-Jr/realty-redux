@@ -1,5 +1,6 @@
 import os
 import re
+import traceback
 
 import requests
 from flask import Blueprint, render_template, request, jsonify
@@ -42,6 +43,31 @@ def assumptions():
                 ASSUMPTIONS[k] = float(v)
     return jsonify(ASSUMPTIONS)
 
+@bp.route("/advanced-search", methods=["POST"])
+def advanced_search():
+    payload = request.json
+    payload = {key: value for key, value in payload.items() if value}
+    try:
+        listings = RealtorDotCom().search(payload)
+        for l in listings:
+            if not l.get("lat") or not l.get("lng"):
+                lat, lng = geocode(l["address"])
+                l["lat"] = lat
+                l["lng"] = lng
+            l["cf"] = calc_cash_flow(l["price"], ASSUMPTIONS, l.get("reno", 0))
+        msg = None
+        if not listings:
+            msg = "No listings found. Try a different location, zip code, or broader search."
+        return jsonify({"listings": listings, "count": len(listings), "message": msg})
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
+    except Exception as e:
+       traceback.print_exc()
+       return jsonify({"error": str(e)}), 500
+
+@bp.route("/advanced-settings", methods=["GET"])
+def advanced_settings():
+    return jsonify([RealtorDotCom.searchOptions, RealtorDotCom.entry])
 
 @bp.route("/search", methods=["POST"])
 def api_search():
@@ -63,8 +89,6 @@ def api_search():
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 400
     except Exception as e:
-        import traceback
-
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 

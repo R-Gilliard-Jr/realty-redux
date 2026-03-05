@@ -72,14 +72,33 @@ function showDetail(i) {
 
 function removeListing(i) { allListings.splice(i, 1); hidePanel("detail-panel"); renderMap(); renderList() }
 
-function doSearch() {
-    var q = document.getElementById("q").value.trim();
-    if (!q) return;
+function searchDispatch(query) {
+    if (typeof(query) == "object") {
+        document.getElementById("advanced-search").classList.remove("show");
+        return fetch("/advanced-search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(query) })
+    } else {
+        return fetch("/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: query }) })
+    }
+}
+
+function doSearch(event) {
+    let element = event.target;
+    let elementId = element.id;
+    if (elementId == "search-btn" || element.id == "q") {
+        var query = document.getElementById("q").value.trim();
+        if (!query) return;
+    } else if (elementId == "advanced-search-button") {
+        var query = {}
+        var inputs = document.querySelectorAll("#advanced-search-body input")
+        inputs.forEach((input) => {query[input.dataset.key] = input.value})
+    }
+
     document.getElementById("search-btn").innerHTML = '<span class="spinner"></span>';
     document.getElementById("search-msg").innerHTML = '<div class="msg info">Searching listings...</div>';
     document.getElementById("search-results").innerHTML = "";
     document.getElementById("search-actions").style.display = "none";
-    fetch("/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: q }) })
+
+    searchDispatch(query)
         .then(function (r) { return r.json() })
         .then(function (d) {
             if (d.error) {
@@ -182,57 +201,8 @@ function exportCSV() {
     var a = document.createElement("a"); a.href = "data:text/csv," + encodeURIComponent(csv); a.download = "cashflow_export.csv"; a.click();
 }
 
-function renderAdvanced() {
-    var searchOptions = {
-        "limit": ["Limit", "int"],
-        "offset": ["Page", "int"],
-        "state_code": ["State Code", "string"],
-        "city": ["City", "string"],
-        "street_name": ["Street Name", "string"],
-        "address": ["Address", "string"],
-        "postal_code": ["Postal Code", "string"],
-        "agent_source_id": ["Agent Source ID", "string"],
-        "selling_agent_name": ["Selling Agent Name", "string"],
-        "source_listing_id": ["Source Listing ID", "string"],
-        "property_id": ["Property ID", "string"],
-        "fulfillment_id": ["Fullfillment ID", "string"],
-        // "search_location": ["Search Location", "object"],
-        // "radius": ["Radius", "int"],
-        // "location": ["Location", "string"],
-        // "status": ["Status", "array"],
-        // "type": ["Type", "array"],
-        // "keywords": ["Keywords", "array"],
-        "boundary": ["Boundary", "object"],
-        "baths": ["Baths", "object"],
-        "beds": ["Beds", "object"],
-        "open_house": ["Open House", "object"],
-        "year_built": ["Year Built", "object"],
-        "sold_price": ["Sold Price", "object"],
-        "sold_date": ["Sold Date", "object"],
-        "list_price": ["List Price", "object"],
-        "lot_sqft": ["Lot SQ. FT.", "object"],
-        "sqft": ["SQ. FT.", "object"],
-        "hoa_fee": ["HOA Fee", "object"],
-        "no_hoa_fee": ["No HOA Fee", "boolean"],
-        "pending": ["Pending", "boolean"],
-        "contingent": ["Contingent", "boolean"],
-        "foreclosure": ["Foreclosure", "boolean"],
-        "has_tour": ["Has Tour", "boolean"],
-        "new_construction": ["New Construction", "boolean"],
-        "cats": ["Cats", "boolean"],
-        "dogs": ["Dogs", "boolean"],
-        "matterport": ["Matterport", "boolean"],
-        // "sort": ["Sort", "object"],
-        // "direction": ["Direction", "string"],
-        // "field": ["Field", "string"]
-    };
-    var entry = {
-        "int": ["input", "number"],
-        "string": ["input", "text"],
-        "boolean": ["input", "checkbox"],
-        "object": ["input", "text", "placeholder='min,max: 0,1'"],
-        "array": ["input", "text"]
-    }
+async function renderAdvanced() {
+    var [searchOptions, entry] = await fetch("/advanced-settings").then((response) => response.json())
     var html = "";
     for (var opt in searchOptions) {
         let label = searchOptions[opt][0];

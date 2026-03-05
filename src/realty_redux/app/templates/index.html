@@ -506,8 +506,8 @@
                 onclick="hidePanel('search-panel')">&#x2715;</button></div>
         <div class="search-bar">
             <input id="q" placeholder="e.g. 3br homes in Baltimore MD under 300k"
-                onkeydown="if(event.key==='Enter')doSearch()" />
-            <button onclick="doSearch()" id="search-btn">&#x1f50d;</button>
+                onkeydown="if(event.key==='Enter')doSearch(event)" />
+            <button onclick="doSearch(event)" id="search-btn">&#x1f50d;</button>
         </div>
         <div class="search-bar">
             <button onclick="togglePanel('advanced-search')">&#x1F4D6; Advanced</button>
@@ -544,7 +544,7 @@
         <div class="settings-grid" id="advanced-search-body"></div>
         <div style="padding:8px 12px">
             <button class="btn btn-primary" style="width:100%;justify-content:center"
-                onclick="doSearch()">Search</button>
+                onclick="doSearch(event)" id="advanced-search-button">Search</button>
         </div>
     </div>
     <div class="legend">
