@@ -54,7 +54,7 @@ def advanced_search():
                 lat, lng = geocode(l["address"])
                 l["lat"] = lat
                 l["lng"] = lng
-            l["cf"] = calc_cash_flow(l["price"], ASSUMPTIONS, l.get("reno", 0))
+            l["cf"] = calc_cash_flow(l["price"], ASSUMPTIONS, l.get("reno", 0), l.get("custom_rent"))
         msg = None
         if not listings:
             msg = "No listings found. Try a different location, zip code, or broader search."

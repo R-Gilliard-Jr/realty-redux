@@ -1,7 +1,11 @@
 import os
 import re
 
+import numpy as np
+import pandas as pd
 import requests
+
+from realty_redux.common.calculations.LinearRegression import Regression
 
 class RealtorDotCom:
     searchOptions = {
@@ -20,7 +24,7 @@ class RealtorDotCom:
         # "search_location": ["Search Location", "object"],
         # "radius": ["Radius", "int"],
         # "location": ["Location", "string"],
-        # "status": ["Status", "array"],
+        "status": ["Status", "array"],
         # "type": ["Type", "array"],
         # "keywords": ["Keywords", "array"],
         "boundary": ["Boundary", "object"],
@@ -163,7 +167,7 @@ class RealtorDotCom:
 
         return self.search(body, max_price=max_price)
 
-    def search(self, body: dict, **kwargs):
+    def search(self, body: dict, **kwargs) -> list[dict]:
         # Call the API (POST with JSON body)
         headers = {
             "Content-Type": "application/json",
@@ -189,7 +193,7 @@ class RealtorDotCom:
             raise ValueError(f"API error: HTTP {r.status_code}")
 
         data = r.json()
-        print(data)
+
         # Handle both v2 and v3 response formats
         properties = data.get("data", {}).get("home_search", {}).get("results", [])
         if not properties:
@@ -203,13 +207,25 @@ class RealtorDotCom:
         print(f"  [Realtor] Raw results: {len(properties)}")
 
         listings = []
+        rentals = []
         for p in properties:
             try:
-                listing = self._parse_realtor_property(p)
-                if listing:
-                    listings.append(listing)
+                if p.get("status") == "for_rent":
+                    rental = self._parse_rental_property(p)
+                    if rental:
+                        rentals.append(rental)
+                else:
+                    listing = self._parse_realtor_property(p)
+                    if listing:
+                        listings.append(listing)
             except Exception:
                 continue
+
+        if rentals and len(rentals) >= 5:
+            regression = Regression(rentals, "price", ["beds", "baths", "sqft", "lat", "lng"])
+            predictions = regression.model.predict(pd.DataFrame.from_records(listings)[regression.independent].fillna(0))
+            for i, prediction in enumerate(predictions):
+                listings[i]["custom_rent"] = prediction
 
         # Client-side price filter (API may not enforce price_max precisely)
         max_price = kwargs.get("max_price")
@@ -228,6 +244,85 @@ class RealtorDotCom:
         print(f"  [Realtor] Final: {len(unique)} listings")
         return unique
 
+    def _parse_rental_property(self, p: dict):
+        """Parse a single property from the Realtor.com API response."""
+        if not isinstance(p, dict):
+            return None
+
+        # v3 format: nested under location.address and description
+        location = p.get("location", {}) or {}
+        address_obj = location.get("address", {}) or {}
+        description = p.get("description", {}) or {}
+        # Coordinates are under location.address.coordinate in v3
+        coord = address_obj.get("coordinate", {}) or location.get("coordinate", {}) or {}
+
+        # v2 format: flat structure
+        if not address_obj and "address" in p:
+            address_obj = p["address"] if isinstance(p["address"], dict) else {}
+
+        # Build address
+        line = address_obj.get("line", "") or p.get("address_line", "") or ""
+        city = address_obj.get("city", "") or p.get("city", "") or ""
+        state = (
+            address_obj.get("state_code", "")
+            or address_obj.get("state", "")
+            or p.get("state_code", "")
+            or ""
+        )
+        zipcode = address_obj.get("postal_code", "") or p.get("postal_code", "") or ""
+        parts = [x for x in [line, city, state, zipcode] if x]
+        address = ", ".join(parts)
+        if not address:
+            return None
+
+        # Price
+        price = p.get("list_price") or p.get("price") or description.get("list_price")
+        if isinstance(price, dict):
+            price = price.get("value") or price.get("max")
+        if price is None:
+            return None
+        price = int(float(str(price).replace(",", "")))
+
+        # Beds, baths, sqft
+        beds = description.get("beds") or p.get("beds")
+        baths = description.get("baths") or p.get("baths")
+        sqft = description.get("sqft") or p.get("sqft")
+        if not sqft:
+            bldg = p.get("building_size", {})
+            if isinstance(bldg, dict):
+                sqft = bldg.get("size")
+
+        # Coordinates
+        lat = coord.get("lat") or coord.get("latitude") or p.get("latitude")
+        lng = (
+            coord.get("lon")
+            or coord.get("lng")
+            or coord.get("longitude")
+            or p.get("longitude")
+        )
+
+        # URL
+        url = p.get("href") or p.get("rdc_web_url") or p.get("web_url") or ""
+        if url and not url.startswith("http"):
+            url = "https://www.realtor.com" + url
+
+        # Summary
+        summary = description.get("text", "") or p.get("description", "")
+        if isinstance(summary, dict):
+            summary = summary.get("text", "")
+
+        return {
+            "address": address,
+            "price": price,
+            "beds": int(beds) if beds else None,
+            "baths": int(float(str(baths))) if baths else None,
+            "sqft": int(float(str(sqft))) if sqft else None,
+            "lat": float(lat) if lat else None,
+            "lng": float(lng) if lng else None,
+            "url": url or None,
+            "summary": (str(summary) or "")[:200],
+            "reno": 0,
+        }
 
     def _parse_realtor_property(self, p):
         """Parse a single property from the Realtor.com API response."""
@@ -267,6 +362,7 @@ class RealtorDotCom:
         if price is None:
             return None
         price = int(float(str(price).replace(",", "")))
+        # TODO: Consider whether to remove this lower limit
         if price < 10000:
             return None
 
