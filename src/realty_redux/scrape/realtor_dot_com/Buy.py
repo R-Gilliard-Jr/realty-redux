@@ -4,8 +4,10 @@ from typing import Self
 
 import undetected_chromedriver as uc
 from selenium.webdriver import Chrome, ActionChains
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
-from realty_redux.scrape.realtor_dot_com.java_script import parseCards
+from realty_redux.scrape.realtor_dot_com.js import parseCards
 
 
 class Buy:
@@ -28,12 +30,20 @@ class Buy:
         return self
 
     def get_data(self, url: str) -> Self:
+        time.sleep(2)
         self.driver.get(url)
         time.sleep(1)
-        # wait = WebDriverWait(self.driver, 10)
-        # wait.until()
+
+        i = 0
+
+        self.parse_page()
+        while self.paginate():
+            self.parse_page()
+
+        return self
+
+    def parse_page(self):
         actions = ActionChains(self.driver)
-        # https://www.realtor.com/realestateandhomes-search/19121
         height = self.driver.execute_script(
             "var pageHeight = document.body.scrollHeight; return pageHeight"
         )
@@ -42,8 +52,23 @@ class Buy:
             actions.scroll_by_amount(0, self.y_scroll_amount).perform()
             current_y += self.y_scroll_amount
             time.sleep(0.5)
+
         card_data = self.driver.execute_script(parseCards)
         card_data = json.loads(card_data)
+        return self
+
+    def paginate(self) -> bool:
+        try:
+            next_link = self.driver.find_element(By.CSS_SELECTOR, "div[aria-label='pagination'] a[aria-label*='next']")
+        except NoSuchElementException:
+            next_link = None
+
+        next_page = False
+        if next_link:
+            ActionChains(self.driver).click(next_link).perform()
+            next_page = True
+
+        return next_page
 
 
 if __name__ == "__main__":
