@@ -1,7 +1,6 @@
 from typing import Self, TypedDict
 
 
-
 class RentalUnit(TypedDict):
     rent_growth: float
     initial_rent: float

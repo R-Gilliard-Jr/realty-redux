@@ -79,7 +79,9 @@ class Buy:
 
     def paginate(self) -> bool:
         try:
-            next_link = self.driver.find_element(By.CSS_SELECTOR, "div[aria-label='pagination'] a[aria-label*='next']")
+            next_link = self.driver.find_element(
+                By.CSS_SELECTOR, "div[aria-label='pagination'] a[aria-label*='next']"
+            )
         except NoSuchElementException:
             next_link = None
 

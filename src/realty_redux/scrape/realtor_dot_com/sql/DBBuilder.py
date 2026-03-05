@@ -2,12 +2,11 @@ from sqlalchemy import create_engine, URL, MetaData
 from sqlalchemy_utils import database_exists, create_database
 from typing import Self
 
+
 class DBBuilder:
-    def __init__(self, metadata: MetaData , **kwargs):
+    def __init__(self, metadata: MetaData, **kwargs):
         self.metadata = metadata
-        self.gen_engine(
-           **kwargs
-        )
+        self.gen_engine(**kwargs)
 
     def gen_engine(self, **kwargs) -> Self:
         """Generate database engine
@@ -35,7 +34,9 @@ class DBBuilder:
 
         return self
 
+
 if __name__ == "__main__":
     from realty_redux.scrape.realtor_dot_com.sql.sql_definitions import sql_metadata
+
     db_path = "C:/Users/regg1/Documents/RealEstateApp/rdc.db"
     DBBuilder(sql_metadata, drivername="sqlite", database=db_path).create_db()

@@ -1,4 +1,3 @@
-
 from sqlalchemy import (
     Column,
     DateTime,
@@ -40,5 +39,5 @@ buy = Table(
     Column("address_1", String(255)),
     Column("address_2", String(255)),
     Column("url", String(255)),
-    Column("images", BLOB)
+    Column("images", BLOB),
 )
