@@ -1,0 +1,553 @@
+{% extends "base.html" %}
+
+
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Cash Flow Optimizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        #hdr {
+            padding: 8px 14px;
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px
+        }
+
+        #hdr h1 {
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        #hdr .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px
+        }
+
+        #hdr .sub {
+            font-size: 9px;
+            color: #64748b
+        }
+
+        .btns {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            padding: 6px 11px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #f1f5f9;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+
+        .btn:hover {
+            background: #334155
+        }
+
+        .btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: #fff
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, .15);
+            border-color: rgba(239, 68, 68, .3);
+            color: #f87171
+        }
+
+        #stats {
+            display: flex;
+            gap: 12px;
+            padding: 3px 14px;
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .stat {
+            text-align: center;
+            padding: 4px 8px
+        }
+
+        .stat label {
+            font-size: 9px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block
+        }
+
+        .stat .v {
+            font-size: 16px;
+            font-weight: 800
+        }
+
+        .pos {
+            color: #4ade80
+        }
+
+        .neg {
+            color: #f87171
+        }
+
+        #main {
+            flex: 1;
+            position: relative;
+            overflow: hidden
+        }
+
+        #map {
+            width: 100%;
+            height: 100%
+        }
+
+        .panel {
+            position: absolute;
+            top: 10px;
+            background: rgba(15, 23, 42, .97);
+            border-radius: 12px;
+            border: 1px solid #334155;
+            z-index: 1200;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .4);
+            display: none;
+            flex-direction: column;
+            max-height: calc(100% - 20px);
+            overflow: hidden
+        }
+
+        .panel.show {
+            display: flex
+        }
+
+        #search-panel {
+            left: 10px;
+            width: 370px
+        }
+
+        #detail-panel {
+            right: 10px;
+            width: 320px;
+            overflow: auto
+        }
+
+        #list-panel {
+            left: 10px;
+            width: 350px;
+            z-index: 1100
+        }
+
+        #settings-panel {
+            left: 10px;
+            width: 440px;
+            z-index: 1300
+        }
+
+        .panel-hdr {
+            padding: 10px 12px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0
+        }
+
+        .panel-hdr b {
+            font-size: 13px
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 18px
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow: auto;
+            padding: 0
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 5px;
+            padding: 0 12px 10px
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px;
+            color: #f1f5f9;
+            font-size: 12px;
+            outline: none
+        }
+
+        .search-bar button {
+            padding: 0 14px;
+            border-radius: 6px;
+            background: #3b82f6;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700
+        }
+
+        .item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 8px
+        }
+
+        .item:hover {
+            background: rgba(59, 130, 246, .06)
+        }
+
+        .item .addr {
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .item .meta {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 1px
+        }
+
+        .item .cf {
+            font-size: 14px;
+            font-weight: 800;
+            text-align: right;
+            flex-shrink: 0
+        }
+
+        .item .cf small {
+            display: block;
+            font-size: 9px;
+            color: #64748b;
+            font-weight: 400
+        }
+
+        .link {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 7px;
+            background: rgba(59, 130, 246, .15);
+            border: 1px solid rgba(59, 130, 246, .3);
+            border-radius: 4px;
+            font-size: 10px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 3px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            padding: 10px 12px
+        }
+
+        .cell {
+            background: #1e293b;
+            border-radius: 7px;
+            padding: 6px 8px;
+            text-align: center
+        }
+
+        .cell label {
+            font-size: 9px;
+            color: #94a3b8;
+            font-weight: 700;
+            display: block
+        }
+
+        .cell .v {
+            font-size: 15px;
+            font-weight: 800
+        }
+
+        .row3 {
+            display: flex;
+            gap: 5px;
+            padding: 0 12px 10px
+        }
+
+        .row3 .cell {
+            flex: 1
+        }
+
+        .row3 .cell .v {
+            font-size: 12px
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            background: rgba(15, 23, 42, .92);
+            border-radius: 8px;
+            padding: 7px 10px;
+            border: 1px solid #334155;
+            z-index: 1000;
+            font-size: 10px
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 1px 0
+        }
+
+        .legend .d {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+
+        .legend .title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 2px
+        }
+
+        .settings-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px 12px
+        }
+
+        .sfld {
+            flex: 1 1 110px;
+            min-width: 90px
+        }
+
+        .sfld label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            display: block
+        }
+
+        .sfld .inp {
+            display: flex;
+            align-items: center;
+            background: #1e293b;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            margin-top: 2px;
+            overflow: hidden
+        }
+
+        .sfld .inp span {
+            padding: 0 6px;
+            color: #64748b;
+            font-size: 12px
+        }
+
+        .sfld .inp input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 7px 6px;
+            color: #f1f5f9;
+            font-size: 12px;
+            outline: none;
+            width: 50px
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #64748b;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin .8s linear infinite
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .msg {
+            padding: 6px 10px;
+            margin: 6px 12px;
+            border-radius: 5px;
+            font-size: 11px;
+            line-height: 1.4
+        }
+
+        .msg.ok {
+            background: rgba(74, 222, 128, .08);
+            border: 1px solid rgba(74, 222, 128, .2);
+            color: #4ade80
+        }
+
+        .msg.err {
+            background: rgba(239, 68, 68, .1);
+            border: 1px solid rgba(239, 68, 68, .2);
+            color: #fca5a5
+        }
+
+        .msg.info {
+            background: rgba(59, 130, 246, .08);
+            border: 1px solid rgba(59, 130, 246, .2);
+            color: #60a5fa
+        }
+
+        .empty {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 500
+        }
+
+        .empty .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 24px
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="hdr">
+        <div>
+            <h1><span class="logo">&#x1f4ca;</span> Cash Flow Optimizer</h1>
+            <div class="sub" id="subtitle">0 listings</div>
+        </div>
+        <div class="btns">
+            <button class="btn" onclick="togglePanel('list-panel')">&#x1f4cb; List</button>
+            <button class="btn" onclick="togglePanel('settings-panel')">&#x2699;&#xfe0f; Assumptions</button>
+            <button class="btn" onclick="exportCSV()">&#x1f4e5; CSV</button>
+            <button class="btn btn-primary" onclick="togglePanel('search-panel')">&#x1f50d; Search</button>
+        </div>
+    </div>
+    <div id="stats"></div>
+    <div id="main">
+        <div id="map"></div>
+        <div id="search-panel" class="panel">
+            <div class="panel-hdr"><b>Search Listings</b><button class="close"
+                    onclick="hidePanel('search-panel')">&#x2715;</button></div>
+            <div class="search-bar">
+                <input id="q" placeholder="e.g. 3br homes in Baltimore MD under 300k"
+                    onkeydown="if(event.key==='Enter')doSearch()" />
+                <button onclick="doSearch()" id="search-btn">&#x1f50d;</button>
+            </div>
+            <div id="search-msg"></div>
+            <div id="search-actions" style="padding:0 12px 6px;display:none">
+                <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="addAllResults()">+
+                    Add All to Map</button>
+            </div>
+            <div class="panel-body" id="search-results"></div>
+        </div>
+        <div id="list-panel" class="panel">
+            <div class="panel-hdr"><b id="list-title">Properties</b><button class="close"
+                    onclick="hidePanel('list-panel')">&#x2715;</button></div>
+            <div class="panel-body" id="list-body"></div>
+        </div>
+        <div id="detail-panel" class="panel"></div>
+        <div id="settings-panel" class="panel">
+            <div class="panel-hdr"><b>Assumptions</b><button class="close"
+                    onclick="hidePanel('settings-panel')">&#x2715;</button></div>
+            <div class="settings-grid" id="settings-body"></div>
+            <div style="padding:8px 12px"><button class="btn btn-primary" style="width:100%;justify-content:center"
+                    onclick="saveSettings()">Apply</button></div>
+        </div>
+        <div class="legend">
+            <div class="title">MONTHLY CF</div>
+            <div><span class="d" style="background:#00c850"></span>$500+</div>
+            <div><span class="d" style="background:#50d050"></span>$200+</div>
+            <div><span class="d" style="background:#dda020"></span>$0+</div>
+            <div><span class="d" style="background:#e07020"></span>-$200+</div>
+            <div><span class="d" style="background:#d02020"></span>&lt;-$200</div>
+        </div>
+        <div class="empty" id="empty-state">
+            <div class="icon">&#x1f3e0;</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:4px">Search for Properties</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:12px">Search Listings to build your cash flow heatmap
+            </div>
+            <button class="btn btn-primary" style="font-size:13px;padding:10px 20px"
+                onclick="togglePanel('search-panel')">&#x1f50d; Search</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="module", src="{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}
